@@ -1,18 +1,48 @@
 "use client";
 
-import { Checkbox, IconButton } from "@material-tailwind/react";
+import { Checkbox, IconButton, Spinner } from "@material-tailwind/react";
+import { useMutation } from "@tanstack/react-query";
+import { deleteTodo, updateTodo } from "actions/todo-actions";
+import { queryClient } from "app/config/ReactQueryClientProvider";
 import { useState } from "react";
 
-export default function Todo() {
+export default function Todo({ todo }) {
   const [isEditing, setIsEditing] = useState(false);
-  const [completed, setCompleted] = useState(false);
-  const [title, setTitle] = useState("");
+  const [completed, setCompleted] = useState(todo.completed);
+  const [title, setTitle] = useState(todo.title);
+
+  const updateTodoMutation = useMutation({
+    mutationFn: () =>
+      updateTodo({
+        id: todo.id,
+        title,
+        completed,
+      }),
+    onSuccess: () => {
+      setIsEditing(false);
+      queryClient.invalidateQueries({
+        queryKey: ["todos"],
+      });
+    },
+  });
+
+  const deleteTodoMutation = useMutation({
+    mutationFn: () => deleteTodo(todo.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["todos"],
+      });
+    },
+  });
 
   return (
     <div className="flex w-full items-center gap-2">
       <Checkbox
         checked={completed}
-        onChange={(event) => setCompleted(event.target.checked)}
+        onChange={async (event) => {
+          await setCompleted(event.target.checked);
+          await updateTodoMutation.mutate();
+        }}
       />
 
       {isEditing ? (
@@ -26,8 +56,12 @@ export default function Todo() {
       )}
 
       {isEditing ? (
-        <IconButton onClick={() => setIsEditing(false)}>
-          <i className="fas fa-check" />
+        <IconButton onClick={async () => await updateTodoMutation.mutate()}>
+          {updateTodoMutation.isPending ? (
+            <Spinner />
+          ) : (
+            <i className="fas fa-check" />
+          )}
         </IconButton>
       ) : (
         <IconButton onClick={() => setIsEditing(true)}>
@@ -35,8 +69,12 @@ export default function Todo() {
         </IconButton>
       )}
 
-      <IconButton>
-        <i className="fas fa-trash" />
+      <IconButton onClick={() => deleteTodoMutation.mutate()}>
+        {deleteTodoMutation.isPending ? (
+          <Spinner />
+        ) : (
+          <i className="fas fa-trash" />
+        )}
       </IconButton>
     </div>
   );
