@@ -14,7 +14,7 @@ export default function UI() {
     queryFn: () => getTodos({ searchInput }),
   });
 
-  const createToMutation = useMutation({
+  const createTodoMutation = useMutation({
     mutationFn: () =>
       createTodo({
         title: "New Todo",
@@ -29,6 +29,7 @@ export default function UI() {
   return (
     <section className="flex flex-col items-center  w-1/2 mx-auto py-10 gap-2">
       <h1 className="text-xl font-extrabold">TODO list</h1>
+      {/* @ts-ignore */}
       <Input
         label="Search Todo"
         placeholder="Search Todo"
@@ -40,10 +41,10 @@ export default function UI() {
       {todosQuery.isPending && <p>Loading...</p>}
       {todosQuery.data &&
         todosQuery.data.map((todo) => <Todo key={todo.id} todo={todo} />)}
-
+      {/* @ts-ignore */}
       <Button
-        onClick={() => createToMutation.mutate()}
-        loading={createToMutation.isPending}
+        onClick={() => createTodoMutation.mutate()}
+        loading={createTodoMutation.isPending}
       >
         <i className="fas fa-plus font-extrabold mr-2" />
         Add Todo

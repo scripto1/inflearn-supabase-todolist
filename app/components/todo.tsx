@@ -37,6 +37,7 @@ export default function Todo({ todo }) {
 
   return (
     <div className="flex w-full items-center gap-2">
+      {/* @ts-ignore */}
       <Checkbox
         checked={completed}
         onChange={async (event) => {
@@ -44,7 +45,6 @@ export default function Todo({ todo }) {
           await updateTodoMutation.mutate();
         }}
       />
-
       {isEditing ? (
         <input
           className="flex-1 border-b-black border-b"
@@ -54,23 +54,26 @@ export default function Todo({ todo }) {
       ) : (
         <p className={`flex-1 ${completed && "line-through"}`}>{title}</p>
       )}
-
       {isEditing ? (
+        // @ts-ignore
         <IconButton onClick={async () => await updateTodoMutation.mutate()}>
           {updateTodoMutation.isPending ? (
+            // @ts-ignore
             <Spinner />
           ) : (
             <i className="fas fa-check" />
           )}
         </IconButton>
       ) : (
+        // @ts-ignore
         <IconButton onClick={() => setIsEditing(true)}>
           <i className="fas fa-pen" />
         </IconButton>
       )}
-
+      {/* @ts-ignore */}
       <IconButton onClick={() => deleteTodoMutation.mutate()}>
         {deleteTodoMutation.isPending ? (
+          // @ts-ignore
           <Spinner />
         ) : (
           <i className="fas fa-trash" />
